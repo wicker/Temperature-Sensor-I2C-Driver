@@ -167,7 +167,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	LDR R0, =ICR 		@ Point to ICR
-	MOV R1, #0xWRITE	@ Load the current value from ICR
+	MOV R1, #WRITE	@ Load the current value from ICR
 	STR R1, [R0]		@ Write to ICR
 
 	LDMFD SP!, {R0-R1,LR}	@ Restore registers, including return address
@@ -194,7 +194,7 @@ I2C_SVC:
 
 ITE_SVC:
 	LDR R0, =ISR 	@ Point to ISR
-	MOV R1, #0xBIT6	@ Load word to clear ITE interrupt
+	MOV R1, #BIT6	@ Load word to clear ITE interrupt
 	STR R1, [R0]	@ Write to ISR
 
 	LDR R0, =ICR	@ Point to ICR
@@ -209,7 +209,7 @@ ITE_SVC:
 
 IRF_SVC:
 	LDR R0, =ISR 	@ Point to ISR
-	MOV R1, #0xBIT7	@ Load word to clear IRF interrupt
+	MOV R1, #BIT7	@ Load word to clear IRF interrupt
 	STR R1, [R0]	@ Write to ISR
 
 	LDR R0, =IDBR	@ Point to IDBR
