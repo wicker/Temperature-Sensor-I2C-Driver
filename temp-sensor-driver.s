@@ -45,6 +45,11 @@ _start:
 .EQU ICCR,   0x40D00014  @ Interrupt Controller Control Register
 .EQU ICLR,   0x40D00008  @ Interrupt Controller Level Register
 
+.EQU ICR,    0x40301690	 @ I2C Bus Control Register
+.EQU ISR,    0x40301698	 @ I2C Bus Status Register
+.EQU IDBR,   0x40301688	 @ I2C Data Buffer Register
+.EQU ISAR,   0x403016A0	 @ I2C Slave Address Register
+
 @-------------------------------------------@
 @ Set GPIO 73 back to Alternate Function 00 @
 @-------------------------------------------@
@@ -61,7 +66,7 @@ STR R1, [R0]    @ Write word back to the GAFR2_L
 LDR R0, =GPCR2	@ Point to GPCR2 register
 LDR R1, [R0]    @ Read current value of GPCR2 register
 ORR R1, #BIT9	@ Word to clear bit 9, sign off when output
-STR R1, [R0]	@ Write to GPCR2
+STR R2, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
 LDR R1, [R0]	@ Read GPDR2 to get current value
@@ -91,20 +96,10 @@ STR R3, [R1]	@ Store this address literal pool
 @ Initialize interrupt controller for button on IP<10> and I2C bus on IP<18> @
 @----------------------------------------------------------------------------@
 
-LDR R0, =ICCR	@ Load pointer to address of ICCR register
-LDR R1, [R0]	@ Read current value of ICCR
-ORR R1, #BIT0	@ Set bit 0 (DIM bit) to only allow unmasked interrupts
-STR R0, [R1] 	@ Write word back to ICMR register
-
 LDR R0, =ICMR	@ Load pointer to address of ICMR register
 LDR R1, [R0]	@ Read current value of ICMR
 ORR R1, #B1018	@ Set bit 10 and 18 to unmask IM10
 STR R0, [R1] 	@ Write word back to ICMR register
-
-LDR R0, =ICLR	@ Load pointer to address of ICLR register
-LDR R1, [R0]	@ Read current value of ICLR
-ORR R1, #0x00	@ Set all bits to 0 to only trigger an IRQ
-STR R0, [R1] 	@ Write word back to ICLR register
 
 @------------------------------------------------------------------------@
 @ Make sure IRQ interrupt on processor enabled by clearing bit 7 in CPSR @
@@ -240,22 +235,6 @@ GOBCK:
 
 BTLDR_IRQ_ADDRESS: .word 0
 
-@ ============================================================================== @
-@ Define the data section                                                        @
-@ ============================================================================== @
-
 .data
 
-MESSAGE: 
-	.word 0x0D
-	.ascii "Take me to your leader"
-	.word 0x0D
-
-MESSAGE_LEN:
-	.word 24
-
-CHAR_PTR: 
-	.word MESSAGE
-
-CHAR_COUNT: 
-	.word 24
+.end
