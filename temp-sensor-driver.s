@@ -172,7 +172,8 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	LDR R0, =ICR 		@ Point to ICR
-	MOV R1, #WRITE	@ Load the current value from ICR
+	MOVW R1, #0x0
+	MOVT R1, #0x1009	@ Load the current value from ICR
 	STR R1, [R0]		@ Write to ICR
 
 	LDMFD SP!, {R0-R1,LR}	@ Restore registers, including return address
@@ -203,7 +204,8 @@ ITE_SVC:
 	STR R1, [R0]	@ Write to ISR
 
 	LDR R0, =ICR	@ Point to ICR
-	MOV R1, #0x100E @ Load word to start the read
+	MOVW R1, #0x00  @ Empty top of R1
+	MOVT R1, #0x100E @ Load the rest of the word to start the read
 	STR R1, [R0]    @ Write to ICR
 
 	B GOBCK		@ Go back to the loop to wait for the byte to be read
