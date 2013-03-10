@@ -99,8 +99,8 @@ STR R3, [R1]	@ Store this address literal pool
 
 LDR R0, =ICMR	 @ Load pointer to address of ICMR register
 LDR R1, [R0]	 @ Read current value of ICMR
-MOV R2, #40000   @ Two insts to overcome 'invalid constant after fixup' error
-ADD R2, R2, #400 @ Second part.
+MOVW R2, #4   @ Two insts to overcome 'invalid constant after fixup' error
+MOVT R2, #0400   @
 ORR R1, R2	 @ Set bit 10 and 18 to unmask IM10
 STR R0, [R1] 	 @ Write word back to ICMR register
 
