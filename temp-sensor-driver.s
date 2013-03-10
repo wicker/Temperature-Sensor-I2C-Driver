@@ -99,8 +99,8 @@ STR R3, [R1]	@ Store this address literal pool
 
 LDR R0, =ICMR	 @ Load pointer to address of ICMR register
 LDR R1, [R0]	 @ Read current value of ICMR
-MOVW R2, #4      @ Load top half-word into R2
-MOVT R2, #0400   @ Load bottom half-word into R2
+MOVW R2, #0400      @ Load bottom half-word into R2 and zero top
+MOVT R2, #0004   @ Load top half-word into R2
 ORR R1, R2	 @ Set bit 10 and 18 to unmask IM10
 STR R0, [R1] 	 @ Write word back to ICMR register
 
@@ -119,8 +119,7 @@ MSR CPSR_c, R3	@ Write new counter value back in memory
 
 LDR R0, =ICR    @ Load pointer to address of ICR register
 @ Set fast mode and enable both I2C and SCL, no other interrupts
-MOVW R2, #0000   @ Load top half-word into R2
-MOVT R2, #8060   @ Load bottom half-word into R2
+MOVW R2, #8060   @ Load top half-word into R2
 STR R1, [R0]    @ Write word back to ICR register
 
 LDR R0, =ISAR   @ Load pointer to address of ISAR register
@@ -172,8 +171,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	LDR R0, =ICR 		@ Point to ICR
-	MOVW R1, #0x0
-	MOVT R1, #0x1009	@ Load the current value from ICR
+	MOVW R1, #0x1009	@ Load the current value from ICR
 	STR R1, [R0]		@ Write to ICR
 
 	LDMFD SP!, {R0-R1,LR}	@ Restore registers, including return address
@@ -204,8 +202,7 @@ ITE_SVC:
 	STR R1, [R0]	@ Write to ISR
 
 	LDR R0, =ICR	@ Point to ICR
-	MOVW R1, #0x00  @ Empty top of R1
-	MOVT R1, #0x100E @ Load the rest of the word to start the read
+	MOVW R1, #0x100E @ Load the rest of the word to start the read
 	STR R1, [R0]    @ Write to ICR
 
 	B GOBCK		@ Go back to the loop to wait for the byte to be read
