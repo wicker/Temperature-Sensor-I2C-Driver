@@ -97,11 +97,12 @@ STR R3, [R1]	@ Store this address literal pool
 @ Initialize interrupt controller for button on IP<10> and I2C bus on IP<18> @
 @----------------------------------------------------------------------------@
 
-LDR R0, =ICMR	@ Load pointer to address of ICMR register
-LDR R1, [R0]	@ Read current value of ICMR
-LDR R2, =#B1018 @ Load to overcome 'invalid constant after fixup' error
-ORR R1, R2	@ Set bit 10 and 18 to unmask IM10
-STR R0, [R1] 	@ Write word back to ICMR register
+LDR R0, =ICMR	 @ Load pointer to address of ICMR register
+LDR R1, [R0]	 @ Read current value of ICMR
+MOV R2, #40000   @ Two insts to overcome 'invalid constant after fixup' error
+ADD R2, R2, #400 @ Second part.
+ORR R1, R2	 @ Set bit 10 and 18 to unmask IM10
+STR R0, [R1] 	 @ Write word back to ICMR register
 
 @------------------------------------------------------------------------@
 @ Make sure IRQ interrupt on processor enabled by clearing bit 7 in CPSR @
