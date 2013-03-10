@@ -99,8 +99,8 @@ STR R3, [R1]	@ Store this address literal pool
 
 LDR R0, =ICMR	 @ Load pointer to address of ICMR register
 LDR R1, [R0]	 @ Read current value of ICMR
-MOVW R2, #4   @ Two insts to overcome 'invalid constant after fixup' error
-MOVT R2, #0400   @
+MOVW R2, #4      @ Load top half-word into R2
+MOVT R2, #0400   @ Load bottom half-word into R2
 ORR R1, R2	 @ Set bit 10 and 18 to unmask IM10
 STR R0, [R1] 	 @ Write word back to ICMR register
 
@@ -118,7 +118,9 @@ MSR CPSR_c, R3	@ Write new counter value back in memory
 @-------------------------------@
 
 LDR R0, =ICR    @ Load pointer to address of ICR register
-MOV R1, #0x00008060 @ Set fast mode and enable both I2C and SCL, no other interrupts
+@ Set fast mode and enable both I2C and SCL, no other interrupts
+MOVW R2, #0000   @ Load top half-word into R2
+MOVT R2, #8060   @ Load bottom half-word into R2
 STR R1, [R0]    @ Write word back to ICR register
 
 LDR R0, =ISAR   @ Load pointer to address of ISAR register
