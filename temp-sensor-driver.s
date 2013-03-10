@@ -35,6 +35,7 @@ _start:
 .EQU BIT14,  0x00004000   @ Value to clear or set bit 14
 .EQU BIT20,  0x00100000   @ Value to clear or set bit 20
 .EQU B1018,  0x00040400   @ Value to clear or set bits 10 and 18
+.EQU BIT18,  0x00040000   @ Value to clear or set bit 18
 
 .EQU WRITE,  0x00001009   @ Value to write a byte from I2C master to slave
 .EQU READ,   0x0000100E   @ Value to read a byte from I2C slave to master
