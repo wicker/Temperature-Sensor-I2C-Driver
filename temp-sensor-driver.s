@@ -15,12 +15,8 @@ _start:
 
 .EQU GPCR2,  0x40E0002C
 .EQU GPDR2,  0x40E00014
-.EQU GRER0,  0x40E00030
 .EQU GRER2,  0x40E00038
-.EQU GRER3,  0x40E00130
-.EQU GEDR0,  0x40E00048
 .EQU GEDR2,  0x40E00050
-.EQU GEDR3,  0x40E00148
 .EQU GAFR2L, 0x40E00064
 
 .EQU CAFRL,  0x000C0000   @ Value to clear or set bits 19 and 20
@@ -37,32 +33,27 @@ _start:
 .EQU B1018,  0x00040400   @ Value to clear or set bits 10 and 18
 .EQU BIT18,  0x00040000   @ Value to clear or set bit 18
 
-.EQU WRITE,  0x00001009   @ Value to write a byte from I2C master to slave
-.EQU READ,   0x0000100E   @ Value to read a byte from I2C slave to master
+.EQU START,  0x00000069   @ ICR value where TB = 1, START = 1
+.EQU MORE,   0x00000068   @ ICR value where TB = 1
+.EQU ACK,    0x0000006C   @ ICR value where TB = 1, ACKNAK = 1
+.EQU STOP,   0x0000006A   @ ICR value where TB = 1, STOP = 1
 
 .EQU ICIP,   0x40D00000  @ Interrupt Controller IRQ Pending Register
 .EQU ICMR,   0x40D00004  @ Interrupt Controller Mask Register
-.EQU ICPR,   0x40D00010  @ Interrupt Controller Pending Register
-.EQU ICCR,   0x40D00014  @ Interrupt Controller Control Register
-.EQU ICLR,   0x40D00008  @ Interrupt Controller Level Register
 
 .EQU ICR,    0x40301690	 @ I2C Bus Control Register
 .EQU ISR,    0x40301698	 @ I2C Bus Status Register
 .EQU IDBR,   0x40301688	 @ I2C Data Buffer Register
 .EQU ISAR,   0x403016A0	 @ I2C Slave Address Register
 
-@-------------------------------------------@
-@ Set GPIO 73 back to Alternate Function 00 @
-@-------------------------------------------@
+@-------------------------------------------------------@
+@ Initialize GPIO 73 as an input and rising edge detect @
+@-------------------------------------------------------@
 
 LDR R0, =GAFR2L @ Load pointer to GAFR2_L register
 LDR R1, [R0]    @ Read GAFR2_L to get current value
 BIC R1, #CAFRL  @ Clear bits 19 and 20 to make GPIO 73 not an alternate function
 STR R1, [R0]    @ Write word back to the GAFR2_L
-
-@-------------------------------------------------------@
-@ Initialize GPIO 73 as an input and rising edge detect @
-@-------------------------------------------------------@
 
 LDR R0, =GPCR2	@ Point to GPCR2 register
 LDR R1, [R0]    @ Read current value of GPCR2 register
@@ -102,7 +93,7 @@ LDR R1, [R0]	 @ Read current value of ICMR
 MOV R2, #0x40000 @ Load mask 
 ORR R2, #0x400
 ORR R1, R1, R2	 @ Set bit 10 and 18 to unmask IM10
-STR R0, [R1] 	 @ Write word back to ICMR register
+STR R1, [R0] 	 @ Write word back to ICMR register
 
 @------------------------------------------------------------------------@
 @ Make sure IRQ interrupt on processor enabled by clearing bit 7 in CPSR @
@@ -118,14 +109,11 @@ MSR CPSR_c, R3	@ Write new counter value back in memory
 @-------------------------------@
 
 LDR R0, =ICR    @ Load pointer to address of ICR register
-@ Set fast mode and enable both I2C and SCL, no other interrupts
-MOV R2, #0x8000 @ Load mask
-ORR R2, #0x60
-ORR R1, R1, R2  @ Set bits to enable fast mode, I2C unit, and SCL 
+MOV R1, #0x60   @ Set bits to enable fast mode, I2C unit, and SCL 
 STR R1, [R0]    @ Write word back to ICR register
 
 LDR R0, =ISAR   @ Load pointer to address of ISAR register
-MOV R1, #0x49   @ Write value of slave address + set the read (LSB) bit to 1
+MOV R1, #0x48   @ Write value of slave address
 STR R1, [R0]    @ Write word back to the ISAR register
 
 @ ============================================================================ @
@@ -149,9 +137,6 @@ IRQ_DIRECTOR:
 	LDR R1, [R0]	@ Read ICIP
 	TST R1, #BIT10	@ Check if GPIO 119:2 IRQ interrupt on IP<10> asserted
 	BNE BTN_SVC	@ Yes, must be button press, go service the button
-
-        TST R1, #BIT18  @ Check if I2C bus IRQ interrupt on IP<18> asserted
-	BNE I2C_SVC     @ Yes, must be I2C interrupt, go service the bus
 			@ No, must be other IRQ, pass on: 
 
 @-----------------------------------------------------------@
@@ -172,72 +157,68 @@ BTN_SVC:
 	ORR R1, #BIT9		@ Set bit 9 to clear the interrupt from pin 73
 	STR R1, [R0]		@ Write to GEDR2
 
-	LDR R0, =ICR 		@ Point to ICR
-	LDR R1, [R0]
-	MOV R2, #0x1000
-	ORR R2, #0x9
-	ORR R1, R1, R2
+	LDR R0, =IDBR		@ Point to IDBR
+	LDR R1, #0x49		@ Load the value to read from the slave address
+	STR R1, [R0]		@ Write to IDBR
+
+	LDR R0, =ICR		@ Point to ICR
+	LDR R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
 
-	LDMFD SP!, {R0-R2, LR}	@ Restore registers, including return address
-	SUBS PC, LR, #4		@ Return from interrupt to wait loop
+	BL POLLTB
 
-@-----------------------------------------------@
-@ I2C_SVC - The interrupt came from the I2C bus @
-@-----------------------------------------------@
+	LDR R0, =ICR		@ Point to ICR
+	LDR R1, #MORE		@ Load the value to request the read
+	STR R1, [R0]		@ Write to ICR
 
-I2C_SVC:
-	LDR R0, =ISR	@ Point to ISR
-	LDR R1, [R0]	@ Read ISR
-	TST R1, #BIT6	@ Check if the ITE interrupt is asserted
-	BNE ITE_SVC	@ If yes, go service the ITE interrupt
-	TST R1, #BIT7   @ Check if the IRF interrupt is asserted
-	BNE IRF_SVC     @ If yes, go service the IRF interrupt
-	B GOBCK		@ Otherwise go back to the loop
+	BL POLLTB
 
-@-----------------------------------------------------------@
-@ ITE_SVC - The interrupt came from the IDBR Transmit-Empty @ 
-@-----------------------------------------------------------@
+	LDR R0, =IDBR		@ Point to IDBR
+	LDR R3, [R0]		@ Save the read temperature byte in R3
+	SHL R3, #1		@ Shift the temperature byte left by 1 bit
 
-ITE_SVC:
-	LDR R0, =ISR 	@ Point to ISR
-	MOV R1, #BIT6	@ Load word to clear ITE interrupt
-	STR R1, [R0]	@ Write to ISR
+	LDR R0, =ICR		@ Point to ICR
+	LDR R1, #ACK		@ Load the value to acknowledge the byte received
+	STR R1, [R0]		@ Write to ICR
 
-	LDR R0, =ICR	@ Point to ICR
-	LDR R1, [R0]
-	MOV R2, #0x1000
-	ORR R2, #0xE
-	ORR R1, R1, R2
-	STR R1, [R0]    @ Write to ICR
+	BL POLLTB
 
-	B GOBCK		@ Go back to the loop to wait for the byte to be read
+	LDR R0, =IDBR		@ Point to IDBR
+	LDR R1, [R0]		@ Save the read temperature byte in R1
+	AND R1, R1, #0x80	@ Retain only the value in bit 7
+	SHR R1, #7		@ Move that value to bit 0 of R1
+	AND R3, R3, R1		@ Put the value of that bit in the LSB of R3 
+				@ to get the complete temperature value
 
-@-----------------------------------------------------------@
-@ IRF_SVC - The interrupt came from the IDBR Transmit-Empty @ 
-@-----------------------------------------------------------@
+	LDR R0, =ICR		@ Point to ICR
+	LDR R1, #STOP		@ Load the value for STOP
+	STR R1, [R0]		@ Write to ICR
 
-IRF_SVC:
-	LDR R0, =ISR 	@ Point to ISR
-	MOV R1, #BIT7	@ Load word to clear IRF interrupt
-	STR R1, [R0]	@ Write to ISR
-
-	LDR R0, =IDBR	@ Point to IDBR
-	LDR R5, [R0]	@ Read IDBR
-
-	LDR R0, =ICR    @ Point to ICR
-	MOV R1, #0x06	@ Load word to write ACKNAK and STOP 
-	STR R1, [R0]    @ Write to ICR
-
-	B GOBCK		@ Go back to the loop to wait for the byte to be read
-
-@------------------------------------@
-@ GOBCK - Restore from the interrupt @
-@------------------------------------@
-
-GOBCK:
-	LDMFD SP!, {R0-R2,LR}	@ Restore original registers, including return address
+	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
+
+@--------------------------------------------------@
+@ POLLTB - Wait for acknowledgement from the slave @
+@--------------------------------------------------@
+
+POLLTB: 
+	LDR R0, =ISR		@ Point to ISR
+	TST R0, #BIT10		@ Test if BED on bit 10 is set = ACK error
+	MOVNE R0, #1		@ If yes, return error code = 1 in R0
+	BNE EXIT		@ If yes, exit on error
+
+	LDR R0, =ICR		@ Point to ICR
+	TST R0, #BIT3		@ Check if TB = 1 for tx/rx not done yet
+	BNE POLLTB		@ If yes, loop until TB = 0
+	MOV PC, LR		@ Otherwise, it's done, return to caller
+
+@----------------------------------------@
+@ EXIT - NOPs for testing and breakpoint @
+@----------------------------------------@
+
+EXIT:
+	NOP
+	NOP
 
 @--------------------@
 @ Build literal pool @
