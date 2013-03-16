@@ -203,8 +203,9 @@ BTN_SVC:
 
 POLLTB: 
 	LDR R0, =ISR		@ Point to ISR
-	TST R0, #BIT10		@ Test if BED on bit 10 is set = ACK error
-	MOVNE R0, #1		@ If yes, return error code = 1 in R0
+	LDR R1, [R0]		@ Read value from ISR
+	TST R1, #BIT10		@ Test if BED on bit 10 is set = ACK error
+@	MOVNE R1, #1		@ If yes, return error code = 1 in R0
 	BNE EXIT		@ If yes, exit on error
 
 	LDR R0, =ICR		@ Point to ICR
