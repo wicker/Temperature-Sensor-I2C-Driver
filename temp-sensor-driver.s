@@ -119,7 +119,9 @@ MSR CPSR_c, R3	@ Write new counter value back in memory
 
 LDR R0, =ICR    @ Load pointer to address of ICR register
 @ Set fast mode and enable both I2C and SCL, no other interrupts
-MOVW R2, #8060   @ Load top half-word into R2
+MOV R2, #0x8000 @ Load mask
+ORR R2, #0x60
+ORR R1, R1, R2  @ Set bits to enable fast mode, I2C unit, and SCL 
 STR R1, [R0]    @ Write word back to ICR register
 
 LDR R0, =ISAR   @ Load pointer to address of ISAR register
