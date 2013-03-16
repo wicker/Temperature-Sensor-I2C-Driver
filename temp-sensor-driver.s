@@ -158,7 +158,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x49		@ Load the value to read from the slave address
+	MOV R1, #0x91		@ Load the value to read from the slave address
 	STR R1, [R0]		@ Write to IDBR
 
 	LDR R0, =ICR		@ Point to ICR
@@ -220,6 +220,7 @@ POLLTB:
 EXIT:
 	MOV R1, #1		@ If yes, return error code = 1 in R1
 	NOP
+	
 
 @--------------------@
 @ Build literal pool @
