@@ -209,7 +209,8 @@ POLLTB:
 @	BNE EXIT		@ If yes, exit on error
 
 	LDR R0, =ICR		@ Point to ICR
-	TST R0, #BIT3		@ Check if TB = 1 for tx/rx not done yet
+	LDR R1, [R0]		@ Read value from ICR to do the check
+	TST R1, #BIT3		@ Check if TB = 1 for tx/rx not done yet
 	BNE POLLTB		@ If yes, loop until TB = 0
 	MOV PC, LR		@ Otherwise, it's done, return to caller
 
