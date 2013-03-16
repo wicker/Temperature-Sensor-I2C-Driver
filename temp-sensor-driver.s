@@ -112,9 +112,9 @@ LDR R0, =ICR    @ Load pointer to address of ICR register
 MOV R1, #0x60   @ Set bits to enable fast mode, I2C unit, and SCL 
 STR R1, [R0]    @ Write word back to ICR register
 
-LDR R0, =ISAR   @ Load pointer to address of ISAR register
-MOV R1, #0x48   @ Write value of slave address
-STR R1, [R0]    @ Write word back to the ISAR register
+@LDR R0, =ISAR   @ Load pointer to address of ISAR register
+@MOV R1, #0x48   @ Write value of slave address
+@STR R1, [R0]    @ Write word back to the ISAR register
 
 @ ============================================================================ @
 @ RUNTIME PHASE								       @
