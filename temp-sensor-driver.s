@@ -158,17 +158,17 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	LDR R0, =IDBR		@ Point to IDBR
-	LDR R1, #0x49		@ Load the value to read from the slave address
+	MOV R1, #0x49		@ Load the value to read from the slave address
 	STR R1, [R0]		@ Write to IDBR
 
 	LDR R0, =ICR		@ Point to ICR
-	LDR R1, #START		@ Load the value for START
+	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
 
 	BL POLLTB
 
 	LDR R0, =ICR		@ Point to ICR
-	LDR R1, #MORE		@ Load the value to request the read
+	MOV R1, #MORE		@ Load the value to request the read
 	STR R1, [R0]		@ Write to ICR
 
 	BL POLLTB
@@ -178,20 +178,20 @@ BTN_SVC:
 	SHL R3, #1		@ Shift the temperature byte left by 1 bit
 
 	LDR R0, =ICR		@ Point to ICR
-	LDR R1, #ACK		@ Load the value to acknowledge the byte received
+	MOV R1, #ACK		@ Load the value to acknowledge the byte received
 	STR R1, [R0]		@ Write to ICR
 
 	BL POLLTB
 
 	LDR R0, =IDBR		@ Point to IDBR
 	LDR R1, [R0]		@ Save the read temperature byte in R1
-	AND R1, R1, #0x80	@ Retain only the value in bit 7
+	MOV R1, R1, #0x80	@ Retain only the value in bit 7
 	SHR R1, #7		@ Move that value to bit 0 of R1
 	AND R3, R3, R1		@ Put the value of that bit in the LSB of R3 
 				@ to get the complete temperature value
 
 	LDR R0, =ICR		@ Point to ICR
-	LDR R1, #STOP		@ Load the value for STOP
+	MOV R1, #STOP		@ Load the value for STOP
 	STR R1, [R0]		@ Write to ICR
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
