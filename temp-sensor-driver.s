@@ -144,7 +144,7 @@ LOOP: 	NOP
 @-----------------------------------------------------------------------------@
 
 IRQ_DIRECTOR:
-	STMFD SP!, {R0-R1, LR}	@ Save registers on stack
+	STMFD SP!, {R0-R2, LR}	@ Save registers on stack
 	LDR R0, =ICIP	@ Point at IRQ Pending Register (ICIP)
 	LDR R1, [R0]	@ Read ICIP
 	TST R1, #BIT10	@ Check if GPIO 119:2 IRQ interrupt on IP<10> asserted
@@ -159,7 +159,7 @@ IRQ_DIRECTOR:
 @-----------------------------------------------------------@
 
 PASSON: 
-	LDMFD SP!, {R0-R1,LR}		@ Restore the registers
+	LDMFD SP!, {R0-R2,LR}		@ Restore the registers
 	LDR PC, =BTLDR_IRQ_ADDRESS	@ Go to bootloader IRQ service procedure
 
 @-------------------------------------------------------------@
@@ -173,10 +173,13 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	LDR R0, =ICR 		@ Point to ICR
-	MOVW R1, #0x1009	@ Load the current value from ICR
+	LDR R1, [R0]
+	MOV R2, #0x1000
+	ORR R2, #0x9
+	ORR R1, R1, R2
 	STR R1, [R0]		@ Write to ICR
 
-	LDMFD SP!, {R0-R1,LR}	@ Restore registers, including return address
+	LDMFD SP!, {R0-R2, LR}	@ Restore registers, including return address
 	SUBS PC, LR, #4		@ Return from interrupt to wait loop
 
 @-----------------------------------------------@
@@ -184,8 +187,6 @@ BTN_SVC:
 @-----------------------------------------------@
 
 I2C_SVC:
-	STMFD SP!,{R2-R5}  @ Save additional registers
-
 	LDR R0, =ISR	@ Point to ISR
 	LDR R1, [R0]	@ Read ISR
 	TST R1, #BIT6	@ Check if the ITE interrupt is asserted
@@ -204,7 +205,10 @@ ITE_SVC:
 	STR R1, [R0]	@ Write to ISR
 
 	LDR R0, =ICR	@ Point to ICR
-	MOVW R1, #0x100E @ Load the rest of the word to start the read
+	LDR R1, [R0]
+	MOV R2, #0x1000
+	ORR R2, #0xE
+	ORR R1, R1, R2
 	STR R1, [R0]    @ Write to ICR
 
 	B GOBCK		@ Go back to the loop to wait for the byte to be read
@@ -232,7 +236,7 @@ IRF_SVC:
 @------------------------------------@
 
 GOBCK:
-	LDMFD SP!, {R0-R1,LR}	@ Restore original registers, including return address
+	LDMFD SP!, {R0-R2,LR}	@ Restore original registers, including return address
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
 
 @--------------------@
