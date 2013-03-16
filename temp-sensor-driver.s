@@ -21,17 +21,10 @@ _start:
 
 .EQU CAFRL,  0x000C0000   @ Value to clear or set bits 19 and 20
 
-.EQU BIT0,   0x00000001   @ Value to clear or set bit 0
 .EQU BIT3,   0x00000008   @ Value to clear or set bit 3
-.EQU BIT4,   0x00000010   @ Value to clear or set bit 4
-.EQU BIT6,   0x00000040   @ Value to clear or set bit 6
 .EQU BIT7,   0x00000080   @ Value to clear or set bit 7
 .EQU BIT9,   0x00000200   @ Value to clear or set bit 9
 .EQU BIT10,  0x00000400   @ Value to clear or set bit 10
-.EQU BIT14,  0x00004000   @ Value to clear or set bit 14
-.EQU BIT20,  0x00100000   @ Value to clear or set bit 20
-.EQU B1018,  0x00040400   @ Value to clear or set bits 10 and 18
-.EQU BIT18,  0x00040000   @ Value to clear or set bit 18
 
 .EQU START,  0x00000069   @ ICR value where TB = 1, START = 1
 .EQU MORE,   0x00000068   @ ICR value where TB = 1
@@ -111,10 +104,6 @@ MSR CPSR_c, R3	@ Write new counter value back in memory
 LDR R0, =ICR    @ Load pointer to address of ICR register
 MOV R1, #0x60   @ Set bits to enable fast mode, I2C unit, and SCL 
 STR R1, [R0]    @ Write word back to ICR register
-
-@LDR R0, =ISAR   @ Load pointer to address of ISAR register
-@MOV R1, #0x48   @ Write value of slave address
-@STR R1, [R0]    @ Write word back to the ISAR register
 
 @ ============================================================================ @
 @ RUNTIME PHASE								       @
