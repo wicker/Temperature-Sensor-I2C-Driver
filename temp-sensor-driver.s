@@ -99,9 +99,9 @@ STR R3, [R1]	@ Store this address literal pool
 
 LDR R0, =ICMR	 @ Load pointer to address of ICMR register
 LDR R1, [R0]	 @ Read current value of ICMR
-MOVW R2, #0400      @ Load bottom half-word into R2 and zero top
-MOVT R2, #0004   @ Load top half-word into R2
-ORR R1, R2	 @ Set bit 10 and 18 to unmask IM10
+MOV R2, #0x40000 @ Load mask 
+ORR R2, #0x400
+ORR R1, R1, R2	 @ Set bit 10 and 18 to unmask IM10
 STR R0, [R1] 	 @ Write word back to ICMR register
 
 @------------------------------------------------------------------------@
