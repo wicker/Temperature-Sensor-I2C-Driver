@@ -185,7 +185,7 @@ BTN_SVC:
 
 	LDR R0, =IDBR		@ Point to IDBR
 	LDR R1, [R0]		@ Save the read temperature byte in R1
-	MOV R1, R1, #0x80	@ Retain only the value in bit 7
+	AND R1, #0x80		@ Retain only the value in bit 7
 	LSR R1, #7		@ Move that value to bit 0 of R1
 	AND R3, R3, R1		@ Put the value of that bit in the LSB of R3 
 				@ to get the complete temperature value
