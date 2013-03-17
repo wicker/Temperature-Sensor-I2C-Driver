@@ -283,20 +283,20 @@ OS_SVC:
 	STR R1, [R0]		@ Write to GEDR3
 
 	@ First start to start the read with pointer byte
-	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x91		@ Load the value to read from the slave address
-	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x00		@ Load the value to point to the temp register
+	MOV R1, #0x91		@ Load the value to read from the slave address
 	STR R1, [R0]		@ Write to IDBR
+	@BL POLLTB
+	@LDR R0, =IDBR		@ Point to IDBR
+	@MOV R1, #0x00		@ Load the value to point to the temp register
+	@STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #ACK		@ Load the value for an acknowledgement
 	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
+	@BL POLLTB
 
 	@ Repeated start get the actual data
 	LDR R0, =IDBR		@ Point to IDBR
