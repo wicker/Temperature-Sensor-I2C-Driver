@@ -299,13 +299,13 @@ OS_SVC:
 	BL POLLTB
 
 	@ Repeated start get the actual data
-	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x91		@ Load the value to read from the slave address
-	STR R1, [R0]		@ Write to IDBR
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #START		@ Load the value for START
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
+	@LDR R0, =IDBR		@ Point to IDBR
+	@MOV R1, #0x91		@ Load the value to read from the slave address
+	@STR R1, [R0]		@ Write to IDBR
+	@LDR R0, =ICR		@ Point to ICR
+	@MOV R1, #START		@ Load the value for START
+	@STR R1, [R0]		@ Write to ICR
+	@BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	LDR R3, [R0]		@ Save the read temperature byte in R3
 	LSL R3, #1		@ Shift the temperature byte left by 1 bit
