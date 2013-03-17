@@ -80,7 +80,7 @@ STR R1, [R0]    @ Write word back to the GAFR2_L
 
 LDR R0, =GPCR2	@ Point to GPCR2 register
 LDR R1, [R0]    @ Read current value of GPCR2 register
-MOV R1, #BIT9	@ Word to clear bit 9
+ORR R1, #BIT9	@ Word to clear bit 9
 STR R1, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
@@ -97,7 +97,7 @@ STR R1, [R0]	@ Write word back to GRER2 register
 @ Initialize GPIO 67 as an output @
 @---------------------------------@
 
-LDR R0, =GPSR2	@ Point to GPCR2 register
+LDR R0, =GPCR2	@ Point to GPCR2 register
 LDR R1, [R0]    @ Read current value of GPCR2 register
 ORR R1, #0x08	@ Word to clear bit 3 to set pin low
 STR R1, [R0]	@ Write to GPCR2
@@ -229,10 +229,6 @@ BTN_SVC:
 	MOV R1, #MORE		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
-	@LDR R0, =ICR		@ Point to ICR
-	@MOV R1, #STOP		@ Load the value for STOP
-	@STR R1, [R0]		@ Write to ICR
-	@BL POLLTB
 
 	@ Write 28 degrees Celsius to Thyst internal register
 	LDR R0, =IDBR		@ Point to IDBR
@@ -299,13 +295,6 @@ OS_SVC:
 	BL POLLTB
 
 	@ Repeated start get the actual data
-	@LDR R0, =IDBR		@ Point to IDBR
-	@MOV R1, #0x91		@ Load the value to read from the slave address
-	@STR R1, [R0]		@ Write to IDBR
-	@LDR R0, =ICR		@ Point to ICR
-	@MOV R1, #START		@ Load the value for START
-	@STR R1, [R0]		@ Write to ICR
-	@BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	LDR R3, [R0]		@ Save the read temperature byte in R3
 	LSL R3, #1		@ Shift the temperature byte left by 1 bit
@@ -325,13 +314,14 @@ OS_SVC:
 
 	@ Test temp value to determine whether to light LED or not
 	TST R3, #0x1E		@ Test if the value in R3 is greater than Tos
-	BGT LED_ON		@ If yes, break to turn LED on
+	BGT TESTOFF		@ If no, break to test if LED off
+	B LED_ON		@ If yes, break to turn LED on
 
+TESTOFF:
 	TST R3, #0x1C		@ Test if the value in R3 is less than Thyst
-	BLE LED_OFF		@ If yes, break to turn LED off
-
-	B EXIT			@ If neither, fall through to exit
+	BLE EXIT		@ If no, break to EXIT to return an error
 				@ This should not have triggered OS if neither
+	B LED_OFF		@ If yes, break to turn LED off
 
 @--------------------------@
 @ LED_ON - Turn the LED on @
