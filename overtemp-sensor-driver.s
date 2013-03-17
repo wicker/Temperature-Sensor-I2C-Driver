@@ -229,10 +229,10 @@ BTN_SVC:
 	MOV R1, #MORE		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #STOP		@ Load the value for STOP
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
+	@LDR R0, =ICR		@ Point to ICR
+	@MOV R1, #STOP		@ Load the value for STOP
+	@STR R1, [R0]		@ Write to ICR
+	@BL POLLTB
 
 	@ Write 28 degrees Celsius to Thyst internal register
 	LDR R0, =IDBR		@ Point to IDBR
