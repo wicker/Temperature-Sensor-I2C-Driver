@@ -104,7 +104,7 @@ STR R1, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
 LDR R1, [R0]	@ Read GPDR2 to get current value
-MOV R1, #0x08   @ Set bit 3 to make GPIO 67 an output
+ORR R1, #0x08   @ Set bit 3 to make GPIO 67 an output
 STR R1, [R0]	@ Write word back to the GPDR2
 
 @-----------------------------------------------------------------@
