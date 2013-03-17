@@ -328,7 +328,7 @@ OS_SVC:
 	BGT LED_ON		@ If yes, break to turn LED on
 
 	TST R3, #0x1C		@ Test if the value in R3 is less than Thyst
-	iBLE LED_OFF		@ If yes, break to turn LED off
+	BLE LED_OFF		@ If yes, break to turn LED off
 
 	B EXIT			@ If neither, fall through to exit
 				@ This should not have triggered OS if neither
