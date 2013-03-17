@@ -282,21 +282,21 @@ OS_SVC:
 	ORR R1, #0x01		@ Set bit 0 to clear the interrupt from pin 96
 	STR R1, [R0]		@ Write to GEDR3
 
-	@ First start to start the read with pointer byte
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #START		@ Load the value for START
-	STR R1, [R0]		@ Write to ICR
+	@ First start to reset the pointer at the TEMP internal register
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x91		@ Load the value to read from the slave address
 	STR R1, [R0]		@ Write to IDBR
-	@BL POLLTB
-	@LDR R0, =IDBR		@ Point to IDBR
-	@MOV R1, #0x00		@ Load the value to point to the temp register
-	@STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #ACK		@ Load the value for an acknowledgement
+	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
-	@BL POLLTB
+	BL POLLTB
+	LDR R0, =IDBR		@ Point to IDBR
+	MOV R1, #0x00		@ Load the value to point to the temp register
+	STR R1, [R0]		@ Write to IDBR
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #MORE		@ Load the value for an acknowledgement
+	STR R1, [R0]		@ Write to ICR
+	BL POLLTB
 
 	@ Repeated start get the actual data
 	LDR R0, =IDBR		@ Point to IDBR
@@ -328,7 +328,7 @@ OS_SVC:
 	BGT LED_ON		@ If yes, break to turn LED on
 
 	TST R3, #0x1C		@ Test if the value in R3 is less than Thyst
-	BLE LED_OFF		@ If yes, break to turn LED off
+	iBLE LED_OFF		@ If yes, break to turn LED off
 
 	B EXIT			@ If neither, fall through to exit
 				@ This should not have triggered OS if neither
