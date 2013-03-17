@@ -97,10 +97,10 @@ STR R1, [R0]	@ Write word back to GRER2 register
 @ Initialize GPIO 67 as an output @
 @---------------------------------@
 
-@LDR R0, =GPCR2	@ Point to GPCR2 register
-@LDR R1, [R0]    @ Read current value of GPCR2 register
-@ORR R1, #0x08	@ Word to clear bit 3
-@STR R1, [R0]	@ Write to GPCR2
+LDR R0, =GPSR2	@ Point to GPCR2 register
+LDR R1, [R0]    @ Read current value of GPCR2 register
+ORR R1, #0x08	@ Word to clear bit 3 to set pin low
+STR R1, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
 LDR R1, [R0]	@ Read GPDR2 to get current value
