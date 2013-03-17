@@ -200,7 +200,8 @@ BTN_SVC:
 	ORR R1, #BIT9		@ Set bit 9 to clear the interrupt from pin 73
 	STR R1, [R0]		@ Write to GEDR2
 
-	@ Write 30 degrees Celsius to Tos internal register
+	@ Write 32 degrees Celsius to Tos internal register
+	@ 32 = 0x20, 30 = 0x1E, 28 = 0x1C  
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x90		@ Load the value to write to the slave address
 	STR R1, [R0]		@ Write to IDBR
@@ -216,7 +217,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x1E		@ Load the MSB value of 30 deg C for Tos
+	MOV R1, #0x20		@ Load the MSB value of 30 deg C for Tos
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to request the write
@@ -230,7 +231,8 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 
-	@ Write 28 degrees Celsius to Thyst internal register
+	@ Write 30 degrees Celsius to Thyst internal register
+	@ 32 = 0x20, 30 = 0x1E, 28 = 0x1C  
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x90		@ Load the value to write to the slave address
 	STR R1, [R0]		@ Write to IDBR
@@ -246,7 +248,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x1C		@ Load the MSB value of 28 deg C for Thyst
+	MOV R1, #0x1E		@ Load the MSB value of 28 deg C for Thyst
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to request the write
