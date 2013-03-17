@@ -263,9 +263,9 @@ BTN_SVC:
 	MOV R1, #MORE		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #STOP		@ Load the value for STOP
-	STR R1, [R0]		@ Write to ICR
+	@LDR R0, =ICR		@ Point to ICR
+	@MOV R1, #STOP		@ Load the value for STOP
+	@STR R1, [R0]		@ Write to ICR
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
