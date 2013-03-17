@@ -57,7 +57,7 @@ STR R1, [R0]    @ Write word back to the GAFR2_L
 LDR R0, =GPCR3	@ Point to GPCR3 register
 LDR R1, [R0]    @ Read current value of GPCR3 register
 ORR R1, #0x01	@ Word to clear bit 0
-STR R2, [R0]	@ Write to GPCR3
+STR R1, [R0]	@ Write to GPCR3
 
 LDR R0, =GPDR3	@ Point to GPDR3 register
 LDR R1, [R0]	@ Read GPDR3 to get current value
@@ -81,7 +81,7 @@ STR R1, [R0]    @ Write word back to the GAFR2_L
 LDR R0, =GPCR2	@ Point to GPCR2 register
 LDR R1, [R0]    @ Read current value of GPCR2 register
 ORR R1, #BIT9	@ Word to clear bit 9
-STR R2, [R0]	@ Write to GPCR2
+STR R1, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
 LDR R1, [R0]	@ Read GPDR2 to get current value
@@ -100,7 +100,7 @@ STR R1, [R0]	@ Write word back to GRER2 register
 LDR R0, =GPCR2	@ Point to GPCR2 register
 LDR R1, [R0]    @ Read current value of GPCR2 register
 ORR R1, #0x08	@ Word to clear bit 3
-STR R2, [R0]	@ Write to GPCR2
+STR R1, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
 LDR R1, [R0]	@ Read GPDR2 to get current value
