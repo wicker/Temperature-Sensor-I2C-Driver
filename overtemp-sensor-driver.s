@@ -220,7 +220,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0xTOS		@ Load the MSB value for Tos
+	MOV R1, #TOS		@ Load the MSB value for Tos
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to request the write
