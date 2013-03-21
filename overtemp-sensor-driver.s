@@ -13,6 +13,9 @@ _start:
 @ Define addresses @
 @------------------@
 
+.EQU THYST,  0x1E
+.EQU TOS,    0x1D
+
 .EQU GPCR3,  0x40E00124
 .EQU GPDR3,  0x40E0010C
 .EQU GEDR3,  0x40E00148
@@ -201,7 +204,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	@ Write 32 degrees Celsius to Tos internal register
-	@ 32 = 0x20, 30 = 0x1E, 28 = 0x1C  
+	@ 32 = 0x20, 31 = 0x1F, 30 = 0x1E, 29 = 0x1D, 28 = 0x1C, 27 = 0x1B, 26 = 0x1A
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x90		@ Load the value to write to the slave address
 	STR R1, [R0]		@ Write to IDBR
@@ -217,14 +220,14 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x20		@ Load the MSB value of 30 deg C for Tos
+	MOV R1, #0xTOS		@ Load the MSB value for Tos
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x00		@ Load the LSB value of 30 deg C for Tos
+	MOV R1, #0x00		@ Load the LSB value for Tos
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to request the write
@@ -232,7 +235,7 @@ BTN_SVC:
 	BL POLLTB
 
 	@ Write 30 degrees Celsius to Thyst internal register
-	@ 32 = 0x20, 30 = 0x1E, 28 = 0x1C  
+	@ 32 = 0x20, 31 = 0x1F, 30 = 0x1E, 29 = 0x1D, 28 = 0x1C, 27 = 0x1B, 26 = 0x1A
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x90		@ Load the value to write to the slave address
 	STR R1, [R0]		@ Write to IDBR
@@ -248,14 +251,14 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x1E		@ Load the MSB value of 28 deg C for Thyst
+	MOV R1, #THYST		@ Load the MSB value for Thyst
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x00		@ Load the LSB value of 28 deg C for Thyst
+	MOV R1, #0x00		@ Load the LSB value for Thyst
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to request the write
@@ -298,29 +301,24 @@ OS_SVC:
 
 	@ Repeated start get the actual data
 	LDR R0, =IDBR		@ Point to IDBR
-	LDR R3, [R0]		@ Save the read temperature byte in R3
-	LSL R3, #1		@ Shift the temperature byte left by 1 bit
+	LDR R3, [R0]		@ Save the first read temperature byte in R3
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #ACK		@ Load the value to acknowledge the byte received
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	LDR R1, [R0]		@ Save the read temperature byte in R1
-	AND R1, #0x80		@ Retain only the value in bit 7
-	LSR R1, #7		@ Move that value to bit 0 of R1
-	ORR R3, R3, R1		@ Put the value of that bit in the LSB of R3 
-				@ to get the complete temperature value
+	LDR R4, [R0]		@ Save the second read temperature byte in R4
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #STOP		@ Load the value for STOP
 	STR R1, [R0]		@ Write to ICR
 
 	@ Test temp value to determine whether to light LED or not
-	TST R3, #0x1E		@ Test if the value in R3 is greater than Tos
+	TST R3, #TOS		@ Test if the value in R3 is greater than Tos
 	BGT TESTOFF		@ If no, break to test if LED off
 	B LED_ON		@ If yes, break to turn LED on
 
 TESTOFF:
-	TST R3, #0x1C		@ Test if the value in R3 is less than Thyst
+	TST R3, #THYST		@ Test if the value in R3 is less than Thyst
 	BLE EXIT		@ If no, break to EXIT to return an error
 				@ This should not have triggered OS if neither
 	B LED_OFF		@ If yes, break to turn LED off
