@@ -96,9 +96,9 @@ LDR R1, [R0]	@ Read current value of GRER2 register
 ORR R1, #BIT9   @ Load mask to set bit 9
 STR R1, [R0]	@ Write word back to GRER2 register
 
-@---------------------------------@
-@ Initialize GPIO 67 as an output @
-@---------------------------------@
+@--------------------------------------------------------------@
+@ Initialize GPIO 67 as an output, set low, set ONOROFF to OFF @
+@--------------------------------------------------------------@
 
 LDR R0, =GPCR2	@ Point to GPCR2 register
 LDR R1, [R0]    @ Read current value of GPCR2 register
@@ -109,6 +109,10 @@ LDR R0, =GPDR2	@ Point to GPDR2 register
 LDR R1, [R0]	@ Read GPDR2 to get current value
 ORR R1, #0x08   @ Set bit 3 to make GPIO 67 an output
 STR R1, [R0]	@ Write word back to the GPDR2
+
+LDR R0,=ONOROFF	@ Point to the ONOROFF variable in memory
+MOV R1, 0xA	@ Load value for OFF
+STRB R1, [R0]	@ Write the byte for OFF back to memory
 
 @-----------------------------------------------------------------@
 @ Hook IRQ procedure address and install our IRQ_DIRECTOR address @
@@ -183,7 +187,7 @@ IRQ_DIRECTOR:
 	LDR R1, [R0]	@ Read GEDR3
 	TST R1, #0x01   @ Check if LM75 OS is the source
 	BNE OS_SVC	@ Yes, go handle the temp sensor
-			@ No, must be other IRQ, pass on: 
+			@ No, must be other IRQ, pass on:
 
 @-----------------------------------------------------------@
 @ PASSON - The interrupt is not from our button or the UART @
@@ -303,6 +307,7 @@ BTN_SVC:
 
 @------------------------------------------------------------@
 @ OS_SVC - The interrupt came from our button on GPIO pin 96 @
+@          Toggle the LED
 @------------------------------------------------------------@
 
 OS_SVC:
@@ -313,67 +318,41 @@ OS_SVC:
 	ORR R1, #0x01		@ Set bit 0 to clear the interrupt from pin 96
 	STR R1, [R0]		@ Write to GEDR3
 
-	@ First start to reset the pointer at the TEMP internal register
-	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x91		@ Load the value to read from the slave address
-	STR R1, [R0]		@ Write to IDBR
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #START		@ Load the value for START
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
-	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x00		@ Load the value to point to the temp register
-	STR R1, [R0]		@ Write to IDBR
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value for an acknowledgement
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
+	LDR R0,=ONOROFF	@ Point to the ONOROFF variable in memory
+	LDR R1, [R0]	@ Read value
+	TST R1, #0xA	@ Test for 0xA (OFF)
+	BNE LEDOFF	@ It's off so go turn it on
+		
+	@ Otherwise, it's on so turn it off
+	LDR R0, =GPCR2		@ Point to GPCR2
+	LDR R1, [R0]		@ Read from GPCR2
+	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED low
+	STR R1, [R0]		@ Write back to GPSR2
 
-	@ Repeated start get the actual data
-	LDR R0, =IDBR		@ Point to IDBR
-	LDR R3, [R0]		@ Save the first read temperature byte in R3
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #ACK		@ Load the value to acknowledge the byte received
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
-	LDR R0, =IDBR		@ Point to IDBR
-	LDR R4, [R0]		@ Save the second read temperature byte in R4
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #STOP		@ Load the value for STOP
-	STR R1, [R0]		@ Write to ICR
+	@ Set the value of the ONOROFF variable to 0x0A (OFF) 
+	LDR R0, =ONOROFF	@ Point to ONOROFF variable
+	MOV R1, #0x0A		@ Load value for ON state
+	STRB R1, [R0]		@ Write the ON byte back to ONOROFF
 
-	@ Test temp value to determine whether to light LED or not
-	TST R3, #TOS		@ Test if the value in R3 is greater than Tos
-	BGT TESTOFF		@ If no, break to test if LED off
-	B LED_ON		@ If yes, break to turn LED on
+	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
+	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
 
-TESTOFF:
-	TST R3, #THYST		@ Test if the value in R3 is less than Thyst
-	BLE EXIT		@ If no, break to EXIT to return an error
-				@ This should not have triggered OS if neither
-	B LED_OFF		@ If yes, break to turn LED off
+@-----------------------------------------------------@
+@ LEDOFF - LED is off, turn it on and update variable @
+@-----------------------------------------------------@
 
-@--------------------------@
-@ LED_ON - Turn the LED on @
-@--------------------------@
-
-LED_ON: 
+LEDOFF:
+	@ Activate the LED
 	LDR R0, =GPSR2		@ Point to GPSR2
 	LDR R1, [R0]		@ Read from GPSR2
 	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED high
 	STR R1, [R0]		@ Write back to GPSR2
-	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
-	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
 
-@----------------------------@
-@ LED_OFF - Turn the LED off @
-@----------------------------@
+	@ Set the value of the ONOROFF variable to 0x0B (ON) 
+	LDR R0, =ONOROFF	@ Point to ONOROFF variable
+	MOV R1, #0x0B		@ Load value for ON state
+	STRB R1, [R0]		@ Write the ON byte back to ONOROFF
 
-LED_OFF:
-	LDR R0, =GPCR2		@ Point to GPCR2
-	LDR R1, [R0]		@ Read from GPCR2
-	BIC R1, R1, #0x08	@ Value to clear bit 3 to output LED low
-	STR R1, [R0]		@ Write back to GPCR2
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
 
@@ -408,5 +387,6 @@ EXIT:
 BTLDR_IRQ_ADDRESS: .word 0
 
 .data
+ONOROFF: 	.word 0x0		@ 0xA means on, 0xB is off 
 
 .end
