@@ -309,6 +309,7 @@ READTEMP:
         MOV R1, #STOP           @ Load the value for STOP
         STR R1, [R0]            @ Write to ICR
 
+	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	MOV PC, LR		@ Otherwise, it's done, return to caller
 
 @------------------------------------------------------------@
