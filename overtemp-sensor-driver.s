@@ -207,7 +207,7 @@ BTN_SVC:
 	ORR R1, #BIT9		@ Set bit 9 to clear the interrupt from pin 73
 	STR R1, [R0]		@ Write to GEDR2
 
-	@ Read the temp into R3
+	@ Read the temp into MSB into R3 and LSB into R4
 	@ Just to make sure Tos and Thyst are correct
         LDR R0, =GEDR2          @ Point to GEDR2
         LDR R1, [R0]            @ Read the current value from GEDR2
@@ -233,9 +233,16 @@ BTN_SVC:
         LDR R0, =IDBR           @ Point to IDBR
         LDR R3, [R0]            @ Save the read temperature byte in R3
 
-        @LDR R0, =ICR            @ Point to ICR
-        @MOV R1, #STOP           @ Load the value for STOP
-        @STR R1, [R0]            @ Write to ICR
+        LDR R0, =ICR            @ Point to ICR
+        MOV R1, #ACK            @ Load the value to acknowledge the byte received
+        STR R1, [R0]            @ Write to ICR
+
+        BL POLLTB
+
+        LDR R0, =IDBR           @ Point to IDBR
+        LDR R4, [R0]            @ Save the read temperature byte in R4
+        AND R4, #0x80           @ Retain only the value in bit 7
+        LSR R4, #7              @ Move that value to bit 0 of R4
 
 	@ Write 32 degrees Celsius to Tos internal register
 	@ 32 = 0x20, 31 = 0x1F, 30 = 0x1E, 29 = 0x1D, 28 = 0x1C, 27 = 0x1B, 26 = 0x1A
