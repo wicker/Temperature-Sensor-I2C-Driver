@@ -13,8 +13,8 @@ _start:
 @ Define addresses @
 @------------------@
 
-.EQU TOS,    0x20
-.EQU THYST,  0x1F
+.EQU TOS,    0x1F
+.EQU THYST,  0x1E
 
 .EQU GPCR3,  0x40E00124
 .EQU GPDR3,  0x40E0010C
@@ -203,6 +203,9 @@ BTN_SVC:
 	ORR R1, #BIT9		@ Set bit 9 to clear the interrupt from pin 73
 	STR R1, [R0]		@ Write to GEDR2
 
+	@ Read the temp
+	BL READTEMP		@ Put read in R3
+
 	@ Write 32 degrees Celsius to Tos internal register
 	@ 32 = 0x20, 31 = 0x1F, 30 = 0x1E, 29 = 0x1D, 28 = 0x1C, 27 = 0x1B, 26 = 0x1A
 	LDR R0, =IDBR		@ Point to IDBR
@@ -270,6 +273,41 @@ BTN_SVC:
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
+
+@-----------@
+@ Read temp @
+@-----------@
+
+READTEMP:
+        LDR R0, =GEDR2          @ Point to GEDR2
+        LDR R1, [R0]            @ Read the current value from GEDR2
+        ORR R1, #BIT9           @ Set bit 9 to clear the interrupt from pin 73
+        STR R1, [R0]            @ Write to GEDR2
+
+        LDR R0, =IDBR           @ Point to IDBR
+        MOV R1, #0x91           @ Load the value to read from the slave address
+        STR R1, [R0]            @ Write to IDBR
+
+        LDR R0, =ICR            @ Point to ICR
+        MOV R1, #START          @ Load the value for START
+        STR R1, [R0]            @ Write to ICR
+
+        BL POLLTB
+
+        LDR R0, =ICR            @ Point to ICR
+        MOV R1, #MORE           @ Load the value to request the read
+        STR R1, [R0]            @ Write to ICR
+
+        BL POLLTB
+
+        LDR R0, =IDBR           @ Point to IDBR
+        LDR R3, [R0]            @ Save the read temperature byte in R3
+
+        LDR R0, =ICR            @ Point to ICR
+        MOV R1, #STOP           @ Load the value for STOP
+        STR R1, [R0]            @ Write to ICR
+
+	MOV PC, LR		@ Otherwise, it's done, return to caller
 
 @------------------------------------------------------------@
 @ OS_SVC - The interrupt came from our button on GPIO pin 96 @
