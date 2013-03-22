@@ -309,8 +309,9 @@ READTEMP:
         MOV R1, #STOP           @ Load the value for STOP
         STR R1, [R0]            @ Write to ICR
 
-	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
-	MOV PC, LR		@ Otherwise, it's done, return to caller
+	LDMFD SP!,{R0-R5,LR}	@ Restore the registers
+	SUBS PC, LR, #4		@ Return to the BTN_SVC
+	@MOV PC, LR		@ Otherwise, it's done, return to caller
 
 @------------------------------------------------------------@
 @ OS_SVC - The interrupt came from our button on GPIO pin 96 @
