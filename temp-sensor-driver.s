@@ -134,7 +134,8 @@ IRQ_DIRECTOR:
 
 PASSON: 
 	LDMFD SP!, {R0-R2,LR}		@ Restore the registers
-	LDR PC, =BTLDR_IRQ_ADDRESS	@ Go to bootloader IRQ service procedure
+	@LDR PC, =BTLDR_IRQ_ADDRESS	@ Go to bootloader IRQ service procedure
+	SUBS PC, LR, #4			@ Return to wait loop
 
 @-------------------------------------------------------------@
 @ BTN_SVC - The interrupt came from our button on GPIO pin 73 @
