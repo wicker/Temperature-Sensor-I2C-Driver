@@ -111,7 +111,7 @@ ORR R1, #0x08   @ Set bit 3 to make GPIO 67 an output
 STR R1, [R0]	@ Write word back to the GPDR2
 
 LDR R0,=ONOROFF	@ Point to the ONOROFF variable in memory
-MOV R1, 0xA	@ Load value for OFF
+MOV R1, #0xA	@ Load value for OFF
 STRB R1, [R0]	@ Write the byte for OFF back to memory
 
 @-----------------------------------------------------------------@
