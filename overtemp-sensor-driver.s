@@ -54,7 +54,7 @@ _start:
 
 LDR R0, =GAFR3L @ Load pointer to GAFR2_L register
 LDR R1, [R0]    @ Read GAFR2_L to get current value
-BIC R1, #0x00   @ Set bits 0 and 1 to set alternate function #0
+BIC R1, #0x03   @ Set bits 0 and 1 to set alternate function #0
 STR R1, [R0]    @ Write word back to the GAFR2_L
 
 LDR R0, =GPCR3	@ Point to GPCR3 register
