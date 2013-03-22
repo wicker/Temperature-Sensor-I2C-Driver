@@ -279,6 +279,8 @@ BTN_SVC:
 @-----------@
 
 READTEMP:
+	STMFD SP!, {R0-R5,LR}	@ Save the registers to the stack
+
         LDR R0, =GEDR2          @ Point to GEDR2
         LDR R1, [R0]            @ Read the current value from GEDR2
         ORR R1, #BIT9           @ Set bit 9 to clear the interrupt from pin 73
