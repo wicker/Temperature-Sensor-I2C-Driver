@@ -189,8 +189,6 @@ BTN_SVC:
 	@ Check the GPLR2 to see if it's really written to it
 	LDR R0, =GPLR2		@ Point to GPLR2
 	LDR R1, [R0]		@ Read from GPLR2
-	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED low
-	STR R1, [R0]		@ Write back to GPLR2
 
 	@ Set the value of the ONOROFF variable to 0x0A (OFF) 
 	LDR R0, =ONOROFF	@ Point to ONOROFF variable
@@ -210,6 +208,10 @@ LEDOFF:
 	LDR R1, [R0]		@ Read from GPSR2
 	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED high
 	STR R1, [R0]		@ Write back to GPSR2
+
+	@ Check the GPLR2 to see if it's really written to it
+	LDR R0, =GPLR2		@ Point to GPLR2
+	LDR R1, [R0]		@ Read from GPLR2
 
 	@ Set the value of the ONOROFF variable to 0x0B (ON) 
 	LDR R0, =ONOROFF	@ Point to ONOROFF variable
