@@ -175,16 +175,15 @@ BTN_SVC:
 	ORR R1, #BIT9		@ Set bit 9 to clear the interrupt from pin 73
 	STR R1, [R0]		@ Write to GEDR2
 
-	LDR R0,=ONOROFF	@ Point to the ONOROFF variable in memory
-	LDR R1, [R0]	@ Read value
-	CMP R1, #0xA	@ Is the value 0x0A (OFF)
-	BEQ LEDOFF	@ Yes, it's off so go turn it on
+	LDR R0,=ONOROFF		@ Point to the ONOROFF variable in memory
+	LDR R1, [R0]		@ Read value
+	CMP R1, #0xA		@ Is the value 0x0A (OFF)
+	BEQ LEDOFF		@ Yes, it's off so go turn it on
 		
 	@ Otherwise, it's on so turn it off
 	LDR R0, =GPCR2		@ Point to GPCR2
-	LDR R1, [R0]		@ Read from GPCR2
-	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED low
-	STR R1, [R0]		@ Write back to GPCR2
+	MOV R1, #0x08		@ Value to set bit 3 to 1 to output LED low
+	STRB R1, [R0]		@ Write back to GPCR2
 
 	@ Check the GPLR2 to see if it's really written to it
 	LDR R0, =GPLR2		@ Point to GPLR2
@@ -205,9 +204,8 @@ BTN_SVC:
 LEDOFF:
 	@ Activate the LED
 	LDR R0, =GPSR2		@ Point to GPSR2
-	LDR R1, [R0]		@ Read from GPSR2
-	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED high
-	STR R1, [R0]		@ Write back to GPSR2
+	MOV R1, #0x08		@ Value to set bit 3 to 1 to output LED high
+	STRB R1, [R0]		@ Write back to GPSR2
 
 	@ Check the GPLR2 to see if it's really written to it
 	LDR R0, =GPLR2		@ Point to GPLR2
