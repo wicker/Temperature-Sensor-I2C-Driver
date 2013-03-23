@@ -59,10 +59,10 @@ LDR R1, [R0]    @ Read GAFR2_L to get current value
 BIC R1, #CAFRL  @ Clear bits 19 and 20 to make GPIO 73 not an alternate function
 STR R1, [R0]    @ Write word back to the GAFR2_L
 
-LDR R0, =GPCR2	@ Point to GPCR2 register
-LDR R1, [R0]    @ Read current value of GPCR2 register
-ORR R1, #BIT9	@ Word to clear bit 9
-STR R1, [R0]	@ Write to GPCR2
+@LDR R0, =GPCR2	@ Point to GPCR2 register
+@LDR R1, [R0]   @ Read current value of GPCR2 register
+@ORR R1, #BIT9	@ Word to clear bit 9
+@STR R1, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
 LDR R1, [R0]	@ Read GPDR2 to get current value
@@ -84,8 +84,7 @@ BIC R1, #CAFRL2	@ At the same time clear bits 6 and 7 to make GPIO 67 not an AF
 STR R1, [R0]	@ Write word back to the GAR2_L
 
 LDR R0, =GPCR2	@ Point to GPCR2 register
-LDR R1, [R0]    @ Read current value of GPCR2 register
-ORR R1, #0x08	@ Word to clear bit 3 to set pin low
+MOV R1, #0x08	@ Word to clear bit 3 to set pin low
 STR R1, [R0]	@ Write to GPCR2
 
 LDR R0, =GPDR2	@ Point to GPDR2 register
