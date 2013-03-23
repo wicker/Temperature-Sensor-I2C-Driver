@@ -80,7 +80,7 @@ STR R1, [R0]	@ Write word back to GRER2 register
 
 LDR R0, =GAFR2L @ Load pointer to GAFR2_L register
 LDR R1, [R0]	@ Read GAFR2_L to get current value
-BIC R1, #0x20	@ At the same time clear bits 6 and 7 to make GPIO 67 not an AF
+BIC R1, #0xC0	@ At the same time clear bits 6 and 7 to make GPIO 67 not an AF
 STR R1, [R0]	@ Write word back to the GAFR2_L
 
 LDR R0, =GPCR2	@ Point to GPCR2 register
