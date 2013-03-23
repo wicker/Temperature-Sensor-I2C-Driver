@@ -170,8 +170,8 @@ BTN_SVC:
 
 	LDR R0,=ONOROFF	@ Point to the ONOROFF variable in memory
 	LDR R1, [R0]	@ Read value
-	TST R1, #0xA	@ Test for 0xA (OFF)
-	BNE LEDOFF	@ It's off so go turn it on
+	CMP R1, #0xA	@ Is the value 0x0A (OFF)
+	BNE LEDOFF	@ Yes, it's off so go turn it on
 		
 	@ Otherwise, it's on so turn it off
 	LDR R0, =GPCR2		@ Point to GPCR2
