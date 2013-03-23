@@ -29,7 +29,8 @@ _start:
 .EQU GEDR2,  0x40E00050
 .EQU GAFR2L, 0x40E00064
 
-.EQU CAFRL,  0x000C0000   @ Value to clear or set bits 19 and 20
+.EQU CAFRL,  0x000C0020   @ Value to clear or set bits 19 and 20
+			  @ also bits 6 and 7
 
 .EQU BIT3,   0x00000008   @ Value to clear or set bit 3
 .EQU BIT7,   0x00000080   @ Value to clear or set bit 7
@@ -55,6 +56,7 @@ _start:
 LDR R0, =GAFR2L @ Load pointer to GAFR2_L register
 LDR R1, [R0]    @ Read GAFR2_L to get current value
 BIC R1, #CAFRL  @ Clear bits 19 and 20 to make GPIO 73 not an alternate function
+		@ At the same time clear bits 6 and 7 to make GPIO 67 not an AF
 STR R1, [R0]    @ Write word back to the GAFR2_L
 
 LDR R0, =GPCR2	@ Point to GPCR2 register
