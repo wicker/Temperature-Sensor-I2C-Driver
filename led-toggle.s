@@ -210,6 +210,8 @@ LEDOFF:
 @ Build literal pool @
 @--------------------@
 
+BTLDR_IRQ_ADDRESS: .word 0
+
 .data
 ONOROFF: 	.word 0x0		@ 0xA means on, 0xB is off 
 
