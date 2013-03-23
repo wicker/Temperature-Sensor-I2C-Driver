@@ -21,6 +21,7 @@ _start:
 .EQU GEDR3,  0x40E00148
 .EQU GRER3,  0x40E00130
 .EQU GAFR3L, 0x40E0006C
+.EQU GPLR2,  0x40E00008
 
 .EQU GPSR2,  0x40E0002C
 .EQU GPCR2,  0x40E0002C
@@ -183,7 +184,13 @@ BTN_SVC:
 	LDR R0, =GPCR2		@ Point to GPCR2
 	LDR R1, [R0]		@ Read from GPCR2
 	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED low
-	STR R1, [R0]		@ Write back to GPSR2
+	STR R1, [R0]		@ Write back to GPCR2
+
+	@ Check the GPLR2 to see if it's really written to it
+	LDR R0, =GPLR2		@ Point to GPLR2
+	LDR R1, [R0]		@ Read from GPLR2
+	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED low
+	STR R1, [R0]		@ Write back to GPLR2
 
 	@ Set the value of the ONOROFF variable to 0x0A (OFF) 
 	LDR R0, =ONOROFF	@ Point to ONOROFF variable
