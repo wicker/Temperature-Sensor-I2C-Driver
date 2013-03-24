@@ -148,9 +148,8 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to GEDR2
 
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x91		@ Load the value to read from the slave address
+	MOV R1, #0x90		@ Load the value to write to the slave address
 	STR R1, [R0]		@ Write to IDBR
-
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
@@ -158,15 +157,31 @@ BTN_SVC:
 	BL POLLTB
 
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to request the read
+	MOV R1, #MORE		@ Load the value to send the pointer
+	STR R1, [R0]		@ Write to ICR
+	LDR R0, =IDBR		@ Point to IDBR
+	MOV R1, #0x00		@ Load the value for the pointer
+	STR R1, [R0]		@ Write to IDBR
+
+	BL POLLTB
+
+	LDR R0, =IDBR		@ Point to IDBR
+	MOV R1, #0x91		@ Load the value to read from the slave address
+	STR R1, [R0]		@ Write to IDBR
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #START		@ Load the value for START
+	STR R1, [R0]		@ Write to ICR
+
+	BL POLLTB
+
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #MORE		@ Load the value to send the pointer
 	STR R1, [R0]		@ Write to ICR
 
 	BL POLLTB
 
 	LDR R0, =IDBR		@ Point to IDBR
 	LDR R3, [R0]		@ Save the read temperature byte in R3
-	LSL R3, #1		@ Shift the temperature byte left by 1 bit
-
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #ACK		@ Load the value to acknowledge the byte received
 	STR R1, [R0]		@ Write to ICR
@@ -174,12 +189,9 @@ BTN_SVC:
 	BL POLLTB
 
 	LDR R0, =IDBR		@ Point to IDBR
-	LDR R1, [R0]		@ Save the read temperature byte in R1
-	AND R1, #0x80		@ Retain only the value in bit 7
-	LSR R1, #7		@ Move that value to bit 0 of R1
-	ORR R3, R3, R1		@ Put the value of that bit in the LSB of R3 
-				@ to get the complete temperature value
-
+	LDR R4, [R0]		@ Save the read temperature byte in R1
+	AND R4, #0x80		@ Retain only the value in bit 7
+	LSR R4, #7		@ Move that value to bit 0 of R4
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #STOP		@ Load the value for STOP
 	STR R1, [R0]		@ Write to ICR
