@@ -147,12 +147,12 @@ BTN_SVC:
 	ORR R1, #BIT9		@ Set bit 9 to clear the interrupt from pin 73
 	STR R1, [R0]		@ Write to GEDR2
 
-	@ Point to the Temp register and read current temperature value in C
+	@ Point to the Config register and read the byte
 
 
 	@ Point to the Config register and write 0x00 to set to defaults
 
-	@ Point to the Config register and read the byte
+	@ Point to the Temp register and read current temperature value in C
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x90		@ Load the value to write to the slave address
 	STR R1, [R0]		@ Write to IDBR
@@ -161,7 +161,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x01		@ Load the value for the pointer
+	MOV R1, #0x00		@ Load the value for the pointer
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #MORE		@ Load the value to send the pointer
