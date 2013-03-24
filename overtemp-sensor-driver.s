@@ -304,7 +304,7 @@ BTN_SVC:
 	MOV R1, #0x00		@ Load the LSB value for Thyst
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #ACK		@ Load the value to request the write
+	MOV R1, #NACK		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	@LDR R0, =ICR		@ Point to ICR
