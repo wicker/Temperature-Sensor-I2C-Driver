@@ -174,15 +174,15 @@ BTN_SVC:
 	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to send the pointer
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
-	LDR R0, =IDBR		@ Point to IDBR
-	LDR R3, [R0]		@ Save the read temperature byte in R3
+	@LDR R0, =ICR		@ Point to ICR
+	@MOV R1, #MORE		@ Load the value to send the pointer
+	@STR R1, [R0]		@ Write to ICR
+	@BL POLLTB
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #ACK		@ Load the value to acknowledge the byte received
 	STR R1, [R0]		@ Write to ICR
+	LDR R0, =IDBR		@ Point to IDBR
+	LDR R3, [R0]		@ Save the read temperature byte in R3
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	LDR R4, [R0]		@ Save the read temperature byte in R1
