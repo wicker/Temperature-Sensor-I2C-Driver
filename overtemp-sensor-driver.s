@@ -329,8 +329,8 @@ OS_SVC:
 
 	LDR R0, =GPLR2 		@ Load pointer to test level register 
 	LDR R1, [R0]		@ Read value
-	CMP R1, #0x08		@ Test for 0x08 
-	BEQ TURNLEDON		@ If it's low, Tos passed, LED needs to be turned on
+	TST R1, #0x08		@ Test for 0x08 
+	BNE TURNLEDON		@ If it's low, Tos passed, LED needs to be turned on
 		
 	@ Otherwise, deactivate the LED
 	LDR R0, =GPCR2		@ Point to GPCR2
