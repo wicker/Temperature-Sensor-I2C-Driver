@@ -37,9 +37,10 @@ _start:
 .EQU BIT10,  0x00000400   @ Value to clear or set bit 10
 
 .EQU START,  0x00000069   @ ICR value where TB = 1, START = 1
-.EQU MORE,   0x00000068   @ ICR value where TB = 1
-.EQU ACK,    0x0000006C   @ ICR value where TB = 1, ACKNAK = 1
-.EQU STOP,   0x0000006A   @ ICR value where TB = 1, STOP = 1
+.EQU ACK,    0x00000068   @ ICR value where TB = 1
+.EQU NACK,   0x0000006C   @ ICR value where TB = 1, ACKNAK = 1
+.EQU MWSTOP, 0x0000006A   @ ICR value where TB = 1, STOP = 1
+.EQU MRSTOP, 0x0000006E   @ ICR value where TB = 1, ACKNAK = 1, STOP = 1
 
 .EQU ICIP,   0x40D00000  @ Interrupt Controller IRQ Pending Register
 .EQU ICMR,   0x40D00004  @ Interrupt Controller Mask Register
@@ -306,7 +307,7 @@ BTN_SVC:
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	@LDR R0, =ICR		@ Point to ICR
-	@MOV R1, #STOP		@ Load the value for STOP
+	@MOV R1, #MWSTOP	@ Load the value for STOP
 	@STR R1, [R0]		@ Write to ICR
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
