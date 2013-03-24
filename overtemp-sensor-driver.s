@@ -325,40 +325,28 @@ OS_SVC:
 	ORR R1, #0x01		@ Set bit 0 to clear the interrupt from pin 96
 	STR R1, [R0]		@ Write to GEDR3
 
-	LDR R0,=ONOROFF	@ Point to the ONOROFF variable in memory
-	LDR R1, [R0]	@ Read value
-	TST R1, #0xA	@ Test for 0xA (OFF)
-	BNE LEDOFF	@ It's off so go turn it on
+	LDR R0, =GPLR2 		@ Load pointer to test level register 
+	LDR R1, [R0]		@ Read value
+	TST R1, #0x08		@ Test for 0x08 
+	BNE TURNLEDON		@ If it's low, Tos passed, LED needs to be turned on
 		
-	@ Otherwise, it's on so turn it off
+	@ Otherwise, deactivate the LED
 	LDR R0, =GPCR2		@ Point to GPCR2
-	LDR R1, [R0]		@ Read from GPCR2
-	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED low
-	STR R1, [R0]		@ Write back to GPSR2
-
-	@ Set the value of the ONOROFF variable to 0x0A (OFF) 
-	LDR R0, =ONOROFF	@ Point to ONOROFF variable
-	MOV R1, #0x0A		@ Load value for ON state
-	STRB R1, [R0]		@ Write the ON byte back to ONOROFF
+	MOV R1, #0x08		@ Value to set bit 3 to 1 to output LED low
+	STR R1, [R0]		@ Write back to GPCR2
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
 
-@-----------------------------------------------------@
-@ LEDOFF - LED is off, turn it on and update variable @
-@-----------------------------------------------------@
+@--------------------------------------------------@
+@ TURNLEDON - Tos just got passed, turn the LED on @
+@--------------------------------------------------@
 
-LEDOFF:
+TURNLEDON:
 	@ Activate the LED
 	LDR R0, =GPSR2		@ Point to GPSR2
-	LDR R1, [R0]		@ Read from GPSR2
-	ORR R1, R1, #0x08	@ Value to set bit 3 to 1 to output LED high
+	MOV R1, #0x08		@ Value to set bit 3 to 1 to output LED high
 	STR R1, [R0]		@ Write back to GPSR2
-
-	@ Set the value of the ONOROFF variable to 0x0B (ON) 
-	LDR R0, =ONOROFF	@ Point to ONOROFF variable
-	MOV R1, #0x0B		@ Load value for ON state
-	STRB R1, [R0]		@ Write the ON byte back to ONOROFF
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
