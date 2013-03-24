@@ -160,12 +160,12 @@ BTN_SVC:
 	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to send the pointer
-	STR R1, [R0]		@ Write to ICR
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x01		@ Load the value for the pointer
 	STR R1, [R0]		@ Write to IDBR
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #MORE		@ Load the value to send the pointer
+	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x91		@ Load the value to read from the slave address
