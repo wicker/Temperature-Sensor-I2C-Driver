@@ -329,13 +329,13 @@ OS_SVC:
 
 	LDR R0, =GPLR2 		@ Load pointer to test level register 
 	LDR R1, [R0]		@ Read value
-	TST R1, #0x08		@ Test for 0x08 
+	CMP R1, #0x08		@ Test for 0x08 
 	BEQ TURNLEDON		@ If it's low, Tos passed, LED needs to be turned on
 		
 	@ Otherwise, deactivate the LED
 	LDR R0, =GPCR2		@ Point to GPCR2
 	MOV R1, #0x08		@ Value to set bit 3 to 1 to output LED low
-	STR R1, [R0]		@ Write back to GPCR2
+	STRB R1, [R0]		@ Write back to GPCR2
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
@@ -348,7 +348,7 @@ TURNLEDON:
 	@ Activate the LED
 	LDR R0, =GPSR2		@ Point to GPSR2
 	MOV R1, #0x08		@ Value to set bit 3 to 1 to output LED high
-	STR R1, [R0]		@ Write back to GPSR2
+	STRB R1, [R0]		@ Write back to GPSR2
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
