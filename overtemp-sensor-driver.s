@@ -21,6 +21,7 @@ _start:
 .EQU GEDR3,  0x40E00148
 .EQU GRER3,  0x40E00130
 .EQU GAFR3L, 0x40E0006C
+.EQU GFER3,  0x40E0013C
 
 .EQU GPLR2,  0x40E00008
 .EQU GPSR2,  0x40E0002C
@@ -50,9 +51,9 @@ _start:
 .EQU ISR,    0x40301698	 @ I2C Bus Status Register
 .EQU IDBR,   0x40301688	 @ I2C Data Buffer Register
 
-@-------------------------------------------------------@
-@ Initialize GPIO 96 as an input and rising edge detect @
-@-------------------------------------------------------@
+@--------------------------------------------------------------------@
+@ Initialize GPIO 96 as an input and both falling/rising edge detect @
+@--------------------------------------------------------------------@
 
 LDR R0, =GAFR3L @ Load pointer to GAFR2_L register
 LDR R1, [R0]    @ Read GAFR2_L to get current value
@@ -72,6 +73,11 @@ LDR R0, =GRER3	@ Point to GRER3 register
 LDR R1, [R0]	@ Read current value of GRER3 register
 ORR R1, #0x01   @ Load mask to set bit 0
 STR R1, [R0]	@ Write word back to GRER3 register
+
+LDR R0, =GFER3	@ Point to GFER3 register
+LDR R1, [R0]	@ Read current value of GFER3 register
+ORR R1, #0x01   @ Load mask to set bit 0
+STR R1, [R0]	@ Write word back to GFER3 register
 
 @-------------------------------------------------------@
 @ Initialize GPIO 73 as an input and rising edge detect @
