@@ -13,8 +13,8 @@ _start:
 @ Define addresses @
 @------------------@
 
-.EQU TOS,    0x1F
-.EQU THYST,  0x1E
+.EQU TOS,    0x1B
+.EQU THYST,  0x1A
 
 .EQU GPCR3,  0x40E00124
 .EQU GPDR3,  0x40E0010C
