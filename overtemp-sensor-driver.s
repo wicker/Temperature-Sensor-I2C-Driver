@@ -258,21 +258,21 @@ BTN_SVC:
 	MOV R1, #0x03		@ Load the value of the Tos pointer
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to request the write
+	MOV R1, #ACK		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #TOS		@ Load the MSB value for Tos
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to request the write
+	MOV R1, #ACK		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x00		@ Load the LSB value for Tos
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to request the write
+	MOV R1, #ACK		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 
@@ -289,21 +289,21 @@ BTN_SVC:
 	MOV R1, #0x02		@ Load the value of the Thyst pointer
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to request the write
+	MOV R1, #ACK		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #THYST		@ Load the MSB value for Thyst
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to request the write
+	MOV R1, #ACK		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x00		@ Load the LSB value for Thyst
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to request the write
+	MOV R1, #ACK		@ Load the value to request the write
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
 	@LDR R0, =ICR		@ Point to ICR
