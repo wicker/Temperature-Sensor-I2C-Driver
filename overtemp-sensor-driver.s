@@ -207,38 +207,38 @@ BTN_SVC:
 	ORR R1, #BIT9		@ Set bit 9 to clear the interrupt from pin 73
 	STR R1, [R0]		@ Write to GEDR2
 
-	@ Read the temp into MSB into R3 and LSB into R4
-	@ Just to make sure Tos and Thyst are correct
-        LDR R0, =GEDR2          @ Point to GEDR2
-        LDR R1, [R0]            @ Read the current value from GEDR2
-        ORR R1, #BIT9           @ Set bit 9 to clear the interrupt from pin 73
-        STR R1, [R0]            @ Write to GEDR2
-
+        @ Read current temperature value in C from preset pointer to Temp
         LDR R0, =IDBR           @ Point to IDBR
-        MOV R1, #0x91           @ Load the value to read from the slave address
+        MOV R1, #0x90           @ Load the value to write to the slave address
         STR R1, [R0]            @ Write to IDBR
-
         LDR R0, =ICR            @ Point to ICR
         MOV R1, #START          @ Load the value for START
         STR R1, [R0]            @ Write to ICR
-
         BL POLLTB
-
+        LDR R0, =IDBR           @ Point to IDBR
+        MOV R1, #0x00           @ Load the value to read from the slave address
+        STR R1, [R0]            @ Write to IDBR
         LDR R0, =ICR            @ Point to ICR
-        MOV R1, #MORE           @ Load the value to request the read
+        MOV R1, #ACK            @ Load the value for ACK
         STR R1, [R0]            @ Write to ICR
-
         BL POLLTB
-
+        LDR R0, =IDBR           @ Point to IDBR
+        MOV R1, #0x91           @ Load the value to read from the slave address
+        STR R1, [R0]            @ Write to IDBR
+        LDR R0, =ICR            @ Point to ICR
+        MOV R1, #START          @ Load the value for repeat START
+        STR R1, [R0]            @ Write to ICR
+        BL POLLTB
+        LDR R0, =ICR            @ Point to ICR
+        MOV R1, #ACK            @ Load the value to acknowledge the byte received
+        STR R1, [R0]            @ Write to ICR
+        BL POLLTB
         LDR R0, =IDBR           @ Point to IDBR
         LDR R3, [R0]            @ Save the read temperature byte in R3
 
         LDR R0, =ICR            @ Point to ICR
-        MOV R1, #ACK            @ Load the value to acknowledge the byte received
+        MOV R1, #MRSTOP         @ Load the value for master-read STOP
         STR R1, [R0]            @ Write to ICR
-
-        BL POLLTB
-
         LDR R0, =IDBR           @ Point to IDBR
         LDR R4, [R0]            @ Save the read temperature byte in R4
         AND R4, #0x80           @ Retain only the value in bit 7
