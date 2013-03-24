@@ -153,20 +153,20 @@ BTN_SVC:
 	@ Point to the Config register and write 0x00 to set to defaults
 
 	@ Point to the Temp register and read current temperature value in C
-	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x90		@ Load the value to write to the slave address
-	STR R1, [R0]		@ Write to IDBR
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #START		@ Load the value for START
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
-	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x00		@ Load the value for the pointer
-	STR R1, [R0]		@ Write to IDBR
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value to send the pointer
-	STR R1, [R0]		@ Write to ICR
-	BL POLLTB
+	@LDR R0, =IDBR		@ Point to IDBR
+	@MOV R1, #0x90		@ Load the value to write to the slave address
+	@STR R1, [R0]		@ Write to IDBR
+	@LDR R0, =ICR		@ Point to ICR
+	@MOV R1, #START		@ Load the value for START
+	@STR R1, [R0]		@ Write to ICR
+	@BL POLLTB
+	@LDR R0, =IDBR		@ Point to IDBR
+	@MOV R1, #0x00		@ Load the value for the pointer
+	@STR R1, [R0]		@ Write to IDBR
+	@LDR R0, =ICR		@ Point to ICR
+	@MOV R1, #MORE		@ Load the value to send the pointer
+	@STR R1, [R0]		@ Write to ICR
+	@BL POLLTB
 	LDR R0, =IDBR		@ Point to IDBR
 	MOV R1, #0x91		@ Load the value to read from the slave address
 	STR R1, [R0]		@ Write to IDBR
@@ -174,6 +174,20 @@ BTN_SVC:
 	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
+	STR R1, [R0]		@ Write to ICR
+	LDR R0, =IDBR		@ Point to IDBR
+	LDR R3, [R0]		@ Save the read temperature byte in R3
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #ACK		@ Load the value to acknowledge the byte received
+	LDR R0, =IDBR		@ Point to IDBR
+	LDR R4, [R0]		@ Save the read temperature byte in R1
+	AND R4, #0x80		@ Retain only the value in bit 7
+	LSR R4, #7		@ Move that value to bit 0 of R4
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #STOP		@ Load the value for STOP
+	STR R1, [R0]		@ Write to ICR
+
+
 	@ This MORE doesn't make a difference if it doesn't come with another POLLTB
 	@ But this timing diagram doesn't show that second POLLTB anywhere
 	@LDR R0, =ICR		@ Point to ICR
@@ -182,17 +196,7 @@ BTN_SVC:
 	@BL POLLTB
 	@LDR R0, =ICR		@ Point to ICR
 	@MOV R1, #ACK		@ Load the value to acknowledge the byte received
-	STR R1, [R0]		@ Write to ICR
-	LDR R0, =IDBR		@ Point to IDBR
-	LDR R3, [R0]		@ Save the read temperature byte in R3
 
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #STOP		@ Load the value for STOP
-	STR R1, [R0]		@ Write to ICR
-	LDR R0, =IDBR		@ Point to IDBR
-	LDR R4, [R0]		@ Save the read temperature byte in R1
-	AND R4, #0x80		@ Retain only the value in bit 7
-	LSR R4, #7		@ Move that value to bit 0 of R4
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
