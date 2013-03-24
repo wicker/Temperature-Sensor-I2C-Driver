@@ -27,9 +27,10 @@ _start:
 .EQU BIT10,  0x00000400   @ Value to clear or set bit 10
 
 .EQU START,  0x00000069   @ ICR value where TB = 1, START = 1
-.EQU MORE,   0x00000068   @ ICR value where TB = 1
-.EQU ACK,    0x0000006C   @ ICR value where TB = 1, ACKNAK = 1
-.EQU STOP,   0x0000006A   @ ICR value where TB = 1, STOP = 1
+.EQU ACK,    0x00000068   @ ICR value where TB = 1
+.EQU NACK,   0x0000006C   @ ICR value where TB = 1, ACKNAK = 1
+.EQU MWSTOP, 0x0000006A   @ ICR value where TB = 1, STOP = 1
+.EQU MRSTOP, 0x0000006E   @ ICR value where TB = 1, ACKNAK = 1, STOP = 1
 
 .EQU ICIP,   0x40D00000  @ Interrupt Controller IRQ Pending Register
 .EQU ICMR,   0x40D00004  @ Interrupt Controller Mask Register
@@ -154,27 +155,40 @@ BTN_SVC:
 
 	@ Read current temperature value in C from preset pointer to Temp
 	LDR R0, =IDBR		@ Point to IDBR
-	MOV R1, #0x91		@ Load the value to read from the slave address
+	MOV R1, #0x90		@ Load the value to write to the slave address
 	STR R1, [R0]		@ Write to IDBR
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #START		@ Load the value for START
 	STR R1, [R0]		@ Write to ICR
 	BL POLLTB
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #MORE		@ Load the value for MORE to signal ready for byte
-	STR R1, [R0]		@ Write to ICR
 	LDR R0, =IDBR		@ Point to IDBR
-	LDR R3, [R0]		@ Save the read temperature byte in R3
+	MOV R1, #0x00		@ Load the value to read from the slave address
+	STR R1, [R0]		@ Write to IDBR
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #ACK		@ Load the value for ACK
+	STR R1, [R0]		@ Write to ICR
+	BL POLLTB
+	LDR R0, =IDBR		@ Point to IDBR
+	MOV R1, #0x91		@ Load the value to read from the slave address
+	STR R1, [R0]		@ Write to IDBR
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #START		@ Load the value for repeat START
+	STR R1, [R0]		@ Write to ICR
+	BL POLLTB
 	LDR R0, =ICR		@ Point to ICR
 	MOV R1, #ACK		@ Load the value to acknowledge the byte received
+	STR R1, [R0]		@ Write to ICR
+	BL POLLTB
+	LDR R0, =IDBR		@ Point to IDBR
+	LDR R3, [R0]		@ Save the read temperature byte in R3
+
+	LDR R0, =ICR		@ Point to ICR
+	MOV R1, #MRSTOP		@ Load the value for master-read STOP
 	STR R1, [R0]		@ Write to ICR
 	LDR R0, =IDBR		@ Point to IDBR
 	LDR R4, [R0]		@ Save the read temperature byte in R4
 	AND R4, #0x80		@ Retain only the value in bit 7
 	LSR R4, #7		@ Move that value to bit 0 of R4
-	LDR R0, =ICR		@ Point to ICR
-	MOV R1, #STOP		@ Load the value for STOP
-	STR R1, [R0]		@ Write to ICR
 
 	LDMFD SP!,{R0-R2,LR}	@ Restore the registers
 	SUBS PC, LR, #4		@ Return from interrupt (to wait loop)
